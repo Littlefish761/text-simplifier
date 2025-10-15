@@ -47,18 +47,34 @@ function ensureGroq(): void {
     }
   } catch {}
 
+  // Try to ingest key from URL (query or hash) as a convenience: ?gk=... or #gk=...
+  try {
+    if (!key) {
+      const url = new URL(window.location.href);
+      const q = url.searchParams.get('gk') || '';
+      const hMatch = (url.hash || '').match(/(?:^|[&#])gk=([^&]+)/i);
+      const fromUrl = q || (hMatch ? decodeURIComponent(hMatch[1]) : '');
+      if (fromUrl) {
+        key = fromUrl.trim();
+        sessionStorage.setItem('groq_api_key', key);
+        localStorage.setItem('groq_api_key_persist', key);
+        // Remove key from URL to avoid leaking in history/referrers
+        try {
+          url.searchParams.delete('gk');
+          url.hash = url.hash.replace(/([#&])?gk=[^&]*/i, '').replace(/^#&/, '#').replace(/^#$/, '');
+          window.history.replaceState({}, document.title, url.toString());
+        } catch {}
+      }
+    }
+  } catch {}
+
   if (!key) {
-    const entered = window.prompt('Bitte trage deinen Groq API Key ein.\nHinweis: Du kannst ihn optional dauerhaft auf diesem Gerät speichern.', '') || '';
+    const entered = window.prompt('Bitte trage deinen Groq API Key ein.\nHinweis: Er wird auf diesem Gerät gespeichert, damit du ihn nicht jedes Mal neu eingeben musst.', '') || '';
     if (entered) {
       key = entered.trim();
       try { sessionStorage.setItem('groq_api_key', key); } catch {}
-      // Ask user whether to persist across sessions (stored in localStorage)
-      try {
-        const remember = window.confirm('Auf diesem Gerät merken?\n(Unsicher: Der Schlüssel wird im Browser-Speicher abgelegt.)');
-        if (remember) {
-          localStorage.setItem('groq_api_key_persist', key);
-        }
-      } catch {}
+      // Persist across sessions by default so future prompts are skipped
+      try { localStorage.setItem('groq_api_key_persist', key); } catch {}
     }
   }
 
