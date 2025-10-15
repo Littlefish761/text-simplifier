@@ -10,6 +10,14 @@ export default defineConfig(({ mode }) => {
     return {
       // Use relative paths so the app works under a subpath on GitHub Pages
       base: '',
+      build: {
+        rollupOptions: {
+          input: {
+            main: path.resolve(__dirname, 'index.html'),
+            login: path.resolve(__dirname, 'login.html'),
+          }
+        }
+      },
       server: {
         port: 3000,
         host: '0.0.0.0',
