@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login — Klartext Kamera</title>
+    <link rel="stylesheet" href="index.css" />
+    <script type="module" src="i18n.ts"></script>
+  </head>
+  <body>
+    <script>
+      try {
+        const ok = sessionStorage.getItem('auth_ok');
+        if (ok) {
+          window.location.replace('index.html');
+        }
+      } catch (e) { /* ignore */ }
+    </script>
+    <button id="lang-toggle" style="position:fixed;top:1rem;right:1rem;padding:0.5rem 1rem;border:1px solid #d1d5db;border-radius:6px;background:#f9fafb;cursor:pointer;font-weight:600;z-index:1000">DE</button>
+    <main style="max-width:420px;margin:6rem auto;padding:2rem;border:1px solid #e5e7eb;border-radius:12px;background:#fff">
+      <h1 style="margin-top:0" data-i18n="login_title">Anmeldung</h1>
+      <p style="color:#555" data-i18n="login_subtitle">Bitte melden Sie sich an, um die Anwendung zu nutzen.</p>
+      <form id="login-form" autocomplete="off">
+        <div class="control-group">
+          <label for="username" data-i18n="username">Benutzername</label>
+          <input id="username" name="username" type="text" required data-i18n="username" placeholder="Name" />
+        </div>
+        <div class="control-group" style="margin-top:12px">
+          <label for="password" data-i18n="password">Passwort</label>
+          <input id="password" name="password" type="password" required data-i18n="password" placeholder="Passwort" />
+        </div>
+        <button id="login-btn" type="submit" style="margin-top:16px">
+          <span data-i18n="login_button">Anmelden</span>
+        </button>
+        <p id="login-error" class="hidden" style="color:#b91c1c;margin-top:12px"></p>
+      </form>
+    </main>
+    <script type="module" src="login.ts"></script>
+  </body>
+</html>

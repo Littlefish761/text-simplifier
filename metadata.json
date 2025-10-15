@@ -1,0 +1,7 @@
+{
+  "name": "Text Simplifier",
+  "description": "Upload an image of text, and this app will simplify it for you based on your chosen style.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
