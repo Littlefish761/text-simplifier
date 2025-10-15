@@ -35,16 +35,44 @@ function ensureGroq(): void {
   if (groq) return;
   let key = '';
   try {
+    // Prefer session key for current tab/session
     key = sessionStorage.getItem('groq_api_key') || '';
+    // If not in session, try persistent key (user opted-in)
+    if (!key) {
+      const persisted = localStorage.getItem('groq_api_key_persist') || '';
+      if (persisted) {
+        key = persisted;
+        try { sessionStorage.setItem('groq_api_key', key); } catch {}
+      }
+    }
   } catch {}
+
   if (!key) {
-    key = window.prompt('Bitte trage deinen Groq API Key ein (wird nur in dieser Sitzung gespeichert):', '') || '';
-    if (key) {
+    const entered = window.prompt('Bitte trage deinen Groq API Key ein.\nHinweis: Du kannst ihn optional dauerhaft auf diesem Gerät speichern.', '') || '';
+    if (entered) {
+      key = entered.trim();
       try { sessionStorage.setItem('groq_api_key', key); } catch {}
+      // Ask user whether to persist across sessions (stored in localStorage)
+      try {
+        const remember = window.confirm('Auf diesem Gerät merken?\n(Unsicher: Der Schlüssel wird im Browser-Speicher abgelegt.)');
+        if (remember) {
+          localStorage.setItem('groq_api_key_persist', key);
+        }
+      } catch {}
     }
   }
+
   groq = new Groq({ apiKey: key, dangerouslyAllowBrowser: true });
 }
+
+// Optional helper to clear stored API keys; can be called from console if needed
+(window as any).clearGroqKey = (all: boolean = false) => {
+  try { sessionStorage.removeItem('groq_api_key'); } catch {}
+  if (all) {
+    try { localStorage.removeItem('groq_api_key_persist'); } catch {}
+  }
+  console.info('Groq API Key entfernt' + (all ? ' (inkl. persistentem Schlüssel).' : '.'));
+};
 const model = 'meta-llama/llama-4-scout-17b-16e-instruct';
 
 // --- Functions ---
